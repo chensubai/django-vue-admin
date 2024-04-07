@@ -594,3 +594,15 @@ class MessageCenterTargetUser(CoreModel):
         db_table = table_prefix + "message_center_target_user"
         verbose_name = "消息中心目标用户表"
         verbose_name_plural = verbose_name
+
+#任务中心
+class Task(CoreModel):
+    title = models.CharField(max_length=100, verbose_name="标题", help_text="标题")
+    content = models.TextField(verbose_name="内容", help_text="内容")
+    type = models.IntegerField(default=0, verbose_name="任务类型", help_text="任务类型")
+    status = models.BooleanField(default=0, verbose_name="任务状态", help_text="任务状态")
+    class Meta:
+        db_table = table_prefix + "tasks"
+        verbose_name = "任务中心"
+        verbose_name_plural = verbose_name
+        ordering = ("-create_datetime",)
