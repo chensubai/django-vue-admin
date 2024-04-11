@@ -1,11 +1,9 @@
 import * as api from './api';
 import {
-    dict,
     UserPageQuery,
     AddReq,
     DelReq,
     EditReq,
-    compute,
     CreateCrudOptionsProps,
     CreateCrudOptionsRet
 } from '@fast-crud/fast-crud';
@@ -14,7 +12,7 @@ import {successMessage} from '/@/utils/message';
 import {auth} from "/@/utils/authFunction";
 import {shallowRef} from "vue";
 import tableSelector from "/@/components/tableSelector/index.vue";
-import {GetObj, UpdateStatusObj} from "./api";
+import {GetObj} from "./api";
 
 export const createCrudOptions = function ({crudExpose}: CreateCrudOptionsProps): CreateCrudOptionsRet {
     const pageRequest = async (query: UserPageQuery) => {
@@ -53,7 +51,7 @@ export const createCrudOptions = function ({crudExpose}: CreateCrudOptionsProps)
             actionbar: {
                 buttons: {
                     add: {
-                        show: auth('task:Create'),
+                        show: auth('problem_category:Create'),
                     }
                 }
             },
@@ -67,11 +65,11 @@ export const createCrudOptions = function ({crudExpose}: CreateCrudOptionsProps)
                     },
                     edit: {
                         iconRight: 'Edit',
-                        show: auth('task:Update')
+                        show: auth('problem_category:Update')
                     },
                     remove: {
                         iconRight: 'Delete',
-                        show: auth('task:Delete')
+                        show: auth('problem_category:Delete')
                     },
                 },
             },
@@ -85,17 +83,18 @@ export const createCrudOptions = function ({crudExpose}: CreateCrudOptionsProps)
             },
             columns: {
                 id: {
-                    title: '序号',
-                    form: {show: false},
+                    title: 'ID',
                     column: {
-                        show:true,
+                        show: true,
                         align: 'center',
                         width: '70px',
-                        columnSetDisabled: true, //禁止在列设置中选择
                     },
+                    form: {
+                        show: false,
+                    }
                 },
                 title: {
-                    title: '任务标题',
+                    title: '分类标题',
                     search: {
                         show: true,
                     },
@@ -115,84 +114,6 @@ export const createCrudOptions = function ({crudExpose}: CreateCrudOptionsProps)
                             },
                         },
                     },
-                },
-                type: {
-                    title: '任务类型',
-                    sortable: 'custom',
-                    search: {
-                        disabled: false,
-                    },
-                    type: 'dict-select',
-                    dict: dict({
-                        data: [
-                            {
-                                label: '设计',
-                                value: 1,
-                            },
-                            {
-                                label: '程序',
-                                value: 2,
-                            },
-                        ],
-                    }),
-                    form: {
-                        rules: [
-                            // 表单校验规则
-                            {
-                                required: true,
-                                message: '必填项',
-                            },
-                        ],
-                        component: {
-                            span: 12,
-                        },
-                        itemProps: {
-                            class: {yxtInput: true},
-                        },
-                    },
-                },
-                content: {
-                    title: '内容',
-                    column: {
-                        show: false,
-                    },
-                    type: ['editor-wang5', 'colspan'],
-                    form: {
-                        rules: [
-                            // 表单校验规则
-                            {required: true, message: '内容必填项'},
-                        ],
-
-                        component: {
-                            placeholder: '请输入任务内容',
-                        },
-                    },
-                },
-                status: {
-                    title: '是否启用',
-                    search: {
-                        show: true,
-                    },
-                    type: 'dict-radio',
-                    column: {
-                        minWidth: 90,
-                        component: {
-                            name: 'fs-dict-switch',
-                            activeText: '',
-                            inactiveText: '',
-                            style: '--el-switch-on-color: var(--el-color-primary); --el-switch-off-color: #dcdfe6',
-                            onChange: compute((context) => {
-                                return () => {
-                                    api.UpdateObj(context.row).then((res: APIResponseData) => {
-                                        successMessage(res.msg as string);
-                                    });
-                                };
-                            }),
-                        },
-                    },
-                    dict: dict({
-                        data: dictionary('button_status_bool'),
-                    }),
                 },
                 create_datetime: {
                     title: '创建时间',

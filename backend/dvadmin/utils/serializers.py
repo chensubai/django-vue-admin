@@ -54,6 +54,9 @@ class CustomModelSerializer(DynamicFieldsMixin, ModelSerializer):
     update_datetime = serializers.DateTimeField(
         format="%Y-%m-%d %H:%M:%S", required=False
     )
+    delete_datetime = serializers.DateTimeField(
+        format="%Y-%m-%d %H:%M:%S", required=False
+    )
 
     def __init__(self, instance=None, data=empty, request=None, **kwargs):
         super().__init__(instance, data, **kwargs)
@@ -105,6 +108,99 @@ class CustomModelSerializer(DynamicFieldsMixin, ModelSerializer):
             return getattr(self.request.user, "id", None)
         return None
 
+    @property
+    def errors(self):
+        # get errors
+        errors = super().errors
+        verbose_errors = {}
+
+        # fields = { field.name: field.verbose_name } for each field in model
+        fields = {field.name: field.verbose_name for field in
+                  self.Meta.model._meta.get_fields() if hasattr(field, 'verbose_name')}
+
+        # iterate over errors and replace error key with verbose name if exists
+        for field_name, error in errors.items():
+            if field_name in fields:
+                verbose_errors[str(fields[field_name])] = error
+            else:
+                verbose_errors[field_name] = error
+        return verbose_errors
+
+    # @cached_property
+    # def fields(self):
+    #     fields = BindingDict(self)
+    #     for key, value in self.get_fields().items():
+    #         fields[key] = value
+    #
+    #     if not hasattr(self, '_context'):
+    #         return fields
+    #     is_root = self.root == self
+    #     parent_is_list_root = self.parent == self.root and getattr(self.parent, 'many', False)
+    #     if not (is_root or parent_is_list_root):
+    #         return fields
+    #
+    #     try:
+    #         request = self.request or self.context['request']
+    #     except KeyError:
+    #         return fields
+    #     params = getattr(
+    #         request, 'query_params', getattr(request, 'GET', None)
+    #     )
+    #     if params is None:
+    #         pass
+    #     try:
+    #         filter_fields = params.get('_fields', None).split(',')
+    #     except AttributeError:
+    #         filter_fields = None
+    #
+    #     try:
+    #         omit_fields = params.get('_exclude', None).split(',')
+    #     except AttributeError:
+    #         omit_fields = []
+    #
+    #     existing = set(fields.keys())
+    #     if filter_fields is None:
+    #         allowed = existing
+    #     else:
+    #         allowed = set(filter(None, filter_fields))
+    #
+    #     omitted = set(filter(None, omit_fields))
+    #     for field in existing:
+    #         if field not in allowed:
+    #             fields.pop(field, None)
+    #         if field in omitted:
+    #             fields.pop(field, None)
+    #
+    #     return fields
+
+class CommonModelSerializer(DynamicFieldsMixin, ModelSerializer):
+    """
+    增强DRF的ModelSerializer,可自动更新模型的审计字段记录
+    (1)self.request能获取到rest_framework.request.Request对象
+    """
+    # 添加默认时间返回格式
+    create_datetime = serializers.DateTimeField(
+        format="%Y-%m-%d %H:%M:%S", required=False, read_only=True
+    )
+    update_datetime = serializers.DateTimeField(
+        format="%Y-%m-%d %H:%M:%S", required=False
+    )
+    delete_datetime = serializers.DateTimeField(
+        format="%Y-%m-%d %H:%M:%S", required=False
+    )
+
+    def __init__(self, instance=None, data=empty, request=None, **kwargs):
+        super().__init__(instance, data, **kwargs)
+        self.request: Request = request or self.context.get("request", None)
+
+    def save(self, **kwargs):
+        return super().save(**kwargs)
+
+    def create(self, validated_data):
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
     @property
     def errors(self):
         # get errors

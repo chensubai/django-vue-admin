@@ -12,8 +12,8 @@ from django.apps import apps
 from django.db import models
 from django.conf import settings
 
-from application import settings
-
+# from application import settings
+from django.utils import timezone
 table_prefix = settings.TABLE_PREFIX  # 数据库表名前缀
 
 
@@ -48,6 +48,12 @@ class SoftDeleteModel(models.Model):
     软删除模型
     一旦继承,就将开启软删除
     """
+    id = models.BigAutoField(primary_key=True, help_text="Id", verbose_name="Id")
+    create_datetime = models.DateTimeField(auto_now_add=True, null=True, blank=True, help_text="创建时间",
+                                           verbose_name="创建时间")
+    update_datetime = models.DateTimeField(auto_now=True, null=True, blank=True, help_text="修改时间",
+                                           verbose_name="修改时间")
+    delete_datetime = models.DateTimeField(null=True, blank=True, help_text="删除时间",verbose_name="删除时间")
     is_deleted = models.BooleanField(verbose_name="是否软删除", help_text='是否软删除', default=False, db_index=True)
     objects = SoftDeleteManager()
 
@@ -60,6 +66,7 @@ class SoftDeleteModel(models.Model):
         """
         重写删除方法,直接开启软删除
         """
+        self.delete_datetime = timezone.now()
         self.is_deleted = True
         self.save(using=using)
 

@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from application import dispatch
-from dvadmin.utils.models import CoreModel, table_prefix, get_custom_app_models
+from dvadmin.utils.models import CoreModel, table_prefix, get_custom_app_models,SoftDeleteModel
 
 
 class Role(CoreModel):
@@ -596,13 +596,67 @@ class MessageCenterTargetUser(CoreModel):
         verbose_name_plural = verbose_name
 
 #任务中心
-class Task(CoreModel):
+class Task(SoftDeleteModel):
     title = models.CharField(max_length=100, verbose_name="标题", help_text="标题")
     content = models.TextField(verbose_name="内容", help_text="内容")
     type = models.IntegerField(default=0, verbose_name="任务类型", help_text="任务类型")
     status = models.BooleanField(default=0, verbose_name="任务状态", help_text="任务状态")
     class Meta:
-        db_table = table_prefix + "tasks"
+        db_table = "tasks"
         verbose_name = "任务中心"
+        verbose_name_plural = verbose_name
+        ordering = ("-create_datetime",)
+#问题分类
+class ProblemCategory(SoftDeleteModel):
+    title = models.CharField(max_length=50, verbose_name="标题", help_text="标题")
+    class Meta:
+        db_table = "problem_category"
+        verbose_name = "问题类型"
+        verbose_name_plural = verbose_name
+        ordering = ("-create_datetime",)
+
+#问题
+class Question(SoftDeleteModel):
+    title = models.CharField(max_length=255, verbose_name="标题", help_text="标题")
+    category = models.ForeignKey(
+        to="ProblemCategory",
+        db_constraint=False,
+        related_name="category",
+        on_delete=models.CASCADE,
+        verbose_name="问题分类",
+        help_text="问题分类",
+    )
+    type = models.IntegerField(default=1, verbose_name="问题类型", help_text="问题类型 1. 单选题2.多选题3.判断题4.设计题")
+    status = models.BooleanField(default=0, verbose_name="问题状态", help_text="问题状态")
+    answer = models.TextField(verbose_name="答案", help_text="答案")
+    analysis = models.TextField(verbose_name="解析", help_text="解析")
+    option_a = models.CharField(max_length=255, verbose_name="选项A", help_text="选项A")
+    option_b = models.CharField(max_length=255, verbose_name="选项B", help_text="选项B")
+    option_c = models.CharField(max_length=255, verbose_name="选项C", null=True, help_text="选项C")
+    option_d = models.CharField(max_length=255, verbose_name="选项D", null=True, help_text="选项D")
+    class Meta:
+        db_table = "question"
+        verbose_name = "问题"
+        verbose_name_plural = verbose_name
+        ordering = ("-create_datetime",)
+class Member(SoftDeleteModel):
+    nickName = models.CharField(max_length=50, verbose_name="昵称", help_text="昵称")
+    mobile = models.CharField(max_length=50, null=True, verbose_name="手机号", help_text="手机号")
+    avatarUrl = models.CharField(max_length=255, null=True, verbose_name="头像", help_text="头像")
+    openId = models.CharField(max_length=255,unique=True, verbose_name="openId", help_text="openId")
+    unionId = models.CharField(max_length=255,unique=True, null=True, verbose_name="unionId", help_text="unionId")
+    class Meta:
+        db_table = "member"
+        verbose_name = "用户中心"
+        verbose_name_plural = verbose_name
+        ordering = ("-create_datetime",)
+
+class  MemberTask(SoftDeleteModel):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, db_constraint=False, verbose_name="用户", help_text="用户")
+    score =models.IntegerField(default=0, verbose_name="分数", help_text="分数")
+    questionList = models.JSONField(default=list, verbose_name="题目列表", help_text="题目列表")
+    class Meta:
+        db_table = "member_score"
+        verbose_name = "用户分数"
         verbose_name_plural = verbose_name
         ordering = ("-create_datetime",)

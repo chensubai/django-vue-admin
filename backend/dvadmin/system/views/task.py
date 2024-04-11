@@ -7,19 +7,16 @@
 @Remark: 字典管理
 """
 from rest_framework import serializers
-from rest_framework.views import APIView
-
-from application import dispatch
 from dvadmin.system.models import Task
-from dvadmin.utils.json_response import SuccessResponse
-from dvadmin.utils.serializers import CustomModelSerializer
+from dvadmin.utils.serializers import CommonModelSerializer
 from dvadmin.utils.viewset import CustomModelViewSet
 
 
-class TaskSerializer(CustomModelSerializer):
+class TaskSerializer(CommonModelSerializer):
     """
     字典-序列化器
     """
+    delete_datetime = serializers.DateTimeField(allow_null=True, required=False)
     status_label = serializers.SerializerMethodField()
     def get_status_label(self, obj: Task):
         if obj.status:
@@ -28,18 +25,17 @@ class TaskSerializer(CustomModelSerializer):
     class Meta:
         model = Task
         fields = "__all__"
-        read_only_fields = ["id"]
 
 
 
 
 
-class TaskCreateUpdateSerializer(CustomModelSerializer):
+class TaskCreateUpdateSerializer(CommonModelSerializer):
     """
     任务 创建/更新时的列化器
     """
     title = serializers.CharField(max_length=100)
-
+    delete_datetime = serializers.DateTimeField(allow_null=True, required=False)
     class Meta:
         model = Task
         fields = '__all__'

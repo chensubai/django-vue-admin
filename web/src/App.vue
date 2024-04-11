@@ -5,7 +5,7 @@
 		<LockScreen v-if="themeConfig.isLockScreen" />
 		<Setings ref="setingsRef" v-show="themeConfig.lockScreenTime > 1" />
 		<CloseFull v-if="!themeConfig.isLockScreen" />
-		<Upgrade v-if="getVersion" />
+<!--		<Upgrade v-if="getVersion" />-->
 	</el-config-provider>
 </template>
 
@@ -25,7 +25,7 @@ import setIntroduction from '/@/utils/setIconfont';
 const LockScreen = defineAsyncComponent(() => import('/@/layout/lockScreen/index.vue'));
 const Setings = defineAsyncComponent(() => import('/@/layout/navBars/breadcrumb/setings.vue'));
 const CloseFull = defineAsyncComponent(() => import('/@/layout/navBars/breadcrumb/closeFull.vue'));
-const Upgrade = defineAsyncComponent(() => import('/@/layout/upgrade/index.vue'));
+//const Upgrade = defineAsyncComponent(() => import('/@/layout/upgrade/index.vue'));
 
 // 定义变量内容
 const { messages, locale } = useI18n();
