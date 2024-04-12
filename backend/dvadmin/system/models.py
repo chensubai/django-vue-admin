@@ -623,8 +623,8 @@ class Question(SoftDeleteModel):
         db_constraint=False,
         related_name="category",
         on_delete=models.CASCADE,
-        verbose_name="问题分类",
-        help_text="问题分类",
+        verbose_name="问题",
+        help_text="问题",
     )
     type = models.IntegerField(default=1, verbose_name="问题类型", help_text="问题类型 1. 单选题2.多选题3.判断题4.设计题")
     status = models.BooleanField(default=0, verbose_name="问题状态", help_text="问题状态")

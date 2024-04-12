@@ -21,6 +21,9 @@ from dvadmin.system.views.menu_field import MenuFieldViewSet
 
 from dvadmin.system.views.task import TaskViewSet
 from dvadmin.system.views.problem_category import ProblemCategoryViewSet
+from dvadmin.system.views.question import QuestionViewSet
+
+
 system_url = routers.SimpleRouter()
 system_url.register(r'menu', MenuViewSet)
 system_url.register(r'menu_button', MenuButtonViewSet)
@@ -39,6 +42,7 @@ system_url.register(r'role_menu_permission', RoleMenuPermissionViewSet)
 system_url.register(r'column', MenuFieldViewSet)
 system_url.register(r'task', TaskViewSet)
 system_url.register(r'problem_category', ProblemCategoryViewSet)
+system_url.register(r'question', QuestionViewSet)
 urlpatterns = [
     path('user/export/', UserViewSet.as_view({'post': 'export_data', })),
     path('user/import/', UserViewSet.as_view({'get': 'import_data', 'post': 'import_data'})),
